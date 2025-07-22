@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function UserDashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [events, setEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]); // New state for filtered events
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchFilters, setSearchFilters] = useState({
@@ -12,7 +13,7 @@ export default function UserDashboard() {
     location: "",
     when: "",
   });
-
+  const [uniqueVenues, setUniqueVenues] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const heroImages = [
@@ -21,12 +22,15 @@ export default function UserDashboard() {
     "/placeholder.svg?height=400&width=800&text=Event+Audience+3",
   ];
 
-  // Fetch events from backend
+  // Fetch events from backend and extract unique venues
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get("http://127.0.0.1:8000/api/events/");
         setEvents(response.data);
+        setFilteredEvents(response.data); // Initialize filteredEvents with all events
+        const venues = [...new Set(response.data.map((event) => event.venue))];
+        setUniqueVenues(venues);
       } catch (err) {
         console.error(err);
         setError("Failed to load events");
@@ -51,7 +55,65 @@ export default function UserDashboard() {
 
   const handleSearch = () => {
     console.log("Search filters:", searchFilters);
-    // Implement search functionality here
+
+    // Filter events based on searchFilters
+    const filtered = events.filter((event) => {
+      const eventDate = new Date(event.start_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time for comparison
+
+      // Helper function to check if event falls within a date range
+      const isWithinDateRange = (range) => {
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay()); // Start of current week (Sunday)
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // End of current week
+        const startOfNextWeek = new Date(endOfWeek);
+        startOfNextWeek.setDate(endOfWeek.getDate() + 1);
+        const endOfNextWeek = new Date(startOfNextWeek);
+        endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
+        const startOfWeekend = new Date(today);
+        startOfWeekend.setDate(today.getDate() + (6 - today.getDay())); // This Saturday
+        const endOfWeekend = new Date(startOfWeekend);
+        endOfWeekend.setDate(startOfWeekend.getDate() + 1); // This Sunday
+
+        switch (range) {
+          case "today":
+            return (
+              eventDate.toDateString() === today.toDateString()
+            );
+          case "tomorrow":
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            return (
+              eventDate.toDateString() === tomorrow.toDateString()
+            );
+          case "this-week":
+            return eventDate >= startOfWeek && eventDate <= endOfWeek;
+          case "this-weekend":
+            return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
+          case "next-week":
+            return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
+          default:
+            return true; // No date filter
+        }
+      };
+
+      // Apply filters
+      const matchesEventType = searchFilters.eventType
+        ? event.title.toLowerCase().includes(searchFilters.eventType.toLowerCase()) // Adjust based on API data
+        : true;
+      const matchesLocation = searchFilters.location
+        ? event.venue.toLowerCase() === searchFilters.location.toLowerCase()
+        : true;
+      const matchesWhen = searchFilters.when
+        ? isWithinDateRange(searchFilters.when)
+        : true;
+
+      return matchesEventType && matchesLocation && matchesWhen;
+    });
+
+    setFilteredEvents(filtered);
   };
 
   const handleFilterChange = (filterType, value) => {
@@ -61,15 +123,25 @@ export default function UserDashboard() {
     }));
   };
 
+  // Reset filters to show all events
+  const handleResetFilters = () => {
+    setSearchFilters({
+      eventType: "",
+      location: "",
+      when: "",
+    });
+    setFilteredEvents(events); // Reset to all events
+  };
+
   useEffect(() => {
     const token = sessionStorage.getItem("auth_token");
-    setIsAuthenticated(!!token); // true if token exists
+    setIsAuthenticated(!!token);
   }, []);
 
   const handleLogout = () => {
-    sessionStorage.clear(); // Clear all session data
+    sessionStorage.clear();
     setIsAuthenticated(false);
-    navigate("/userdashboard"); // Redirect to homepage
+    navigate("/userdashboard");
   };
 
   return (
@@ -78,15 +150,12 @@ export default function UserDashboard() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
             <div className="flex items-center">
               <h1 className="text-2xl font-bold">
                 <span style={{ color: "#000000ff" }}>Event</span>{" "}
                 <span style={{ color: "#8B5CF6" }}>Hive</span>
               </h1>
             </div>
-
-            {/* Navigation */}
             <div className="flex items-center space-x-4">
               {!isAuthenticated ? (
                 <>
@@ -138,8 +207,6 @@ export default function UserDashboard() {
             alt="Event audience"
             className="w-full h-full object-cover"
           />
-
-          {/* Navigation Arrows */}
           <button
             onClick={prevSlide}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
@@ -176,8 +243,6 @@ export default function UserDashboard() {
               />
             </svg>
           </button>
-
-          {/* Overlay Text */}
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
             <h2 className="text-4xl md:text-6xl font-bold text-white text-center">
               MADE FOR THOSE
@@ -221,12 +286,12 @@ export default function UserDashboard() {
                     handleFilterChange("location", e.target.value)
                   }
                 >
-                  <option value="">Choose location</option>
-                  <option value="mumbai">Mumbai</option>
-                  <option value="delhi">Delhi</option>
-                  <option value="bangalore">Bangalore</option>
-                  <option value="pune">Pune</option>
-                  <option value="online">Online</option>
+                  <option value="">All location</option>
+                  {uniqueVenues.map((venue) => (
+                    <option key={venue} value={venue.toLowerCase()}>
+                      {venue}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="flex-1">
@@ -246,31 +311,46 @@ export default function UserDashboard() {
                   <option value="next-week">Next Week</option>
                 </select>
               </div>
-              <button
-                onClick={handleSearch}
-                className="px-6 py-3 text-white rounded-md transition-colors hover:bg-opacity-90"
-                style={{ backgroundColor: "#8B5CF6" }}
-                onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = "#7C3AED")
-                }
-                onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = "#8B5CF6")
-                }
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSearch}
+                  className="px-6 py-3 text-white rounded-md transition-colors hover:bg-opacity-90"
+                  style={{ backgroundColor: "#8B5CF6" }}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#7C3AED")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#8B5CF6")
+                  }
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleResetFilters}
+                  className="px-6 py-3 text-white rounded-md transition-colors hover:bg-opacity-90"
+                  style={{ backgroundColor: "#6B7280" }}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#4B5563")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#6B7280")
+                  }
+                >
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -279,7 +359,6 @@ export default function UserDashboard() {
       {/* Upcoming Events Section */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <h2 className="text-3xl font-bold mb-4 md:mb-0">
               <span style={{ color: "#000000ff" }}>Upcoming</span>
@@ -323,67 +402,73 @@ export default function UserDashboard() {
           {/* Event Cards Grid */}
           {!loading && !error && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {events.map((event) => (
-                <div
-                  key={event._id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  <div className="relative">
-                    <img
-                      src={
-                        event.image_base64
-                          ? `data:image/png;base64,${event.image_base64}`
-                          : "/placeholder.svg?height=200&width=300"
-                      }
-                      alt={event.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <span
-                      className={`absolute top-3 left-3 px-3 py-1 text-xs font-bold text-white rounded ${
-                        event.cost === "0" || event.cost === 0
-                          ? "bg-blue-500"
-                          : "bg-indigo-900"
-                      }`}
-                    >
-                      {event.cost === "0" || event.cost === 0 ? "FREE" : "PAID"}
-                    </span>
+              {filteredEvents.length > 0 ? (
+                filteredEvents.map((event) => (
+                  <div
+                    key={event._id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                  >
+                    <div className="relative">
+                      <img
+                        src={
+                          event.image_base64
+                            ? `data:image/png;base64,${event.image_base64}`
+                            : "/placeholder.svg?height=200&width=300"
+                        }
+                        alt={event.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <span
+                        className={`absolute top-3 left-3 px-3 py-1 text-xs font-bold text-white rounded ${
+                          event.cost === "0" || event.cost === 0
+                            ? "bg-blue-500"
+                            : "bg-indigo-900"
+                        }`}
+                      >
+                        {event.cost === "0" || event.cost === 0 ? "FREE" : "PAID"}
+                      </span>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-lg mb-2 line-clamp-2">
+                        <span style={{ color: "#000000ff" }}>{event.title}</span>
+                      </h3>
+                      <p className="text-purple-600 text-sm mb-1">
+                        {new Date(event.start_date).toLocaleDateString("en-US", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                        , {event.start_time}
+                      </p>
+                      <p className="text-gray-600 text-sm mb-4">{event.venue}</p>
+                      <button
+                        className="w-full py-2 px-4 text-white rounded-md font-medium transition-colors"
+                        style={{ backgroundColor: "#8B5CF6" }}
+                        onMouseEnter={(e) =>
+                          (e.target.style.backgroundColor = "#7C3AED")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.target.style.backgroundColor = "#8B5CF6")
+                        }
+                      >
+                        {event.cost === "0" || event.cost === 0
+                          ? "Book Now"
+                          : `₹${event.cost}`}
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2 line-clamp-2">
-                      {event.title}
-                    </h3>
-                    <p className="text-purple-600 text-sm mb-1">
-                      {new Date(event.start_date).toLocaleDateString("en-US", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                      , {event.start_time}
-                    </p>
-                    <p className="text-gray-600 text-sm mb-4">{event.venue}</p>
-                    <button
-                      className="w-full py-2 px-4 text-white rounded-md font-medium transition-colors"
-                      style={{ backgroundColor: "#8B5CF6" }}
-                      onMouseEnter={(e) =>
-                        (e.target.style.backgroundColor = "#7C3AED")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.target.style.backgroundColor = "#8B5CF6")
-                      }
-                    >
-                      {event.cost === "0" || event.cost === 0
-                        ? "Book Now"
-                        : `₹${event.cost}`}
-                    </button>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12 col-span-full">
+                  <p className="text-gray-600">No events match your search criteria.</p>
                 </div>
-              ))}
+              )}
             </div>
           )}
 
           {/* Load More Button */}
-          {!loading && !error && events.length > 0 && (
+          {!loading && !error && filteredEvents.length > 0 && (
             <div className="text-center">
               <button
                 className="px-8 py-3 text-white rounded-md font-medium transition-colors"
@@ -405,7 +490,6 @@ export default function UserDashboard() {
       {/* Footer */}
       <footer className="bg-indigo-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Section */}
           <div className="flex flex-col md:flex-row justify-between items-center mb-8">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">
               Event <span style={{ color: "#A78BFA" }}>Hive</span>
@@ -430,8 +514,6 @@ export default function UserDashboard() {
               </button>
             </div>
           </div>
-
-          {/* Navigation Links */}
           <div className="flex flex-wrap justify-center gap-8 mb-8">
             <a href="#" className="hover:text-purple-300 transition-colors">
               Home
@@ -449,10 +531,7 @@ export default function UserDashboard() {
               FAQs
             </a>
           </div>
-
-          {/* Bottom Section */}
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-indigo-800">
-            {/* Language Selector */}
             <div className="flex gap-2 mb-4 md:mb-0">
               <button className="px-3 py-1 bg-purple-600 text-white rounded text-sm">
                 English
@@ -464,11 +543,8 @@ export default function UserDashboard() {
                 Hindi
               </button>
             </div>
-
-            {/* Social Media and Copyright */}
             <div className="text-center md:text-right">
               <div className="flex justify-center md:justify-end gap-4 mb-2">
-                {/* LinkedIn */}
                 <a href="#" className="hover:text-purple-300 transition-colors">
                   <svg
                     className="w-5 h-5"
@@ -478,7 +554,6 @@ export default function UserDashboard() {
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                   </svg>
                 </a>
-                {/* Instagram */}
                 <a href="#" className="hover:text-purple-300 transition-colors">
                   <svg
                     className="w-5 h-5"
@@ -488,7 +563,6 @@ export default function UserDashboard() {
                     <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z" />
                   </svg>
                 </a>
-                {/* Facebook */}
                 <a href="#" className="hover:text-purple-300 transition-colors">
                   <svg
                     className="w-5 h-5"
