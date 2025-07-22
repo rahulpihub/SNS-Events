@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function UserDashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -44,6 +45,8 @@ export default function UserDashboard() {
     );
   };
 
+  const navigate = useNavigate();
+
   const handleSearch = () => {
     console.log("Search filters:", searchFilters);
     // Implement search functionality here
@@ -71,10 +74,12 @@ export default function UserDashboard() {
 
             {/* Navigation */}
             <div className="flex items-center space-x-4">
-              <button className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-md font-medium transition-colors">
+              <button  onClick={() => navigate("/signin")}
+               className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-md font-medium transition-colors">
                 <span style={{ color: "#ffffffff" }}>Login</span>
               </button>
               <button
+                onClick={() => navigate("/")}
                 className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                 style={{ backgroundColor: "#8B5CF6" }}
                 onMouseEnter={(e) =>
