@@ -193,6 +193,7 @@ def create_event(request):
 
         title = data.get("title", "").strip()
         venue = data.get("venue", "").strip()
+        event_type = data.get("eventType")
         start_date = data.get("startDate")
         end_date = data.get("endDate")
         start_time = data.get("startTime")
@@ -234,6 +235,7 @@ def create_event(request):
         event_data = {
             "title": title,
             "venue": venue,
+            "event_type": event_type, 
             "start_date": start_date,
             "end_date": end_date,
             "start_time": start_time,

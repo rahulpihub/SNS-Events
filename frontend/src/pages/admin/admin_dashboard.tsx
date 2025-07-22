@@ -235,28 +235,8 @@ export default function UserDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <h2 className="text-3xl font-bold mb-4 md:mb-0">
-              <span style={{ color: "#000000ff" }}>Upcoming</span>
-              <span style={{ color: "#8B5CF6" }}> Events</span>
+              <span style={{ color: "#000000ff" }}>Listed Events</span>
             </h2>
-            <div className="flex gap-4">
-              <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-black">
-                <option>Weekdays</option>
-                <option>Weekends</option>
-                <option>All days</option>
-              </select>
-              <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-black">
-                <option>Event type</option>
-                <option>Conference</option>
-                <option>Workshop</option>
-                <option>Concert</option>
-              </select>
-              <select className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-black">
-                <option>Any category</option>
-                <option>Technology</option>
-                <option>Business</option>
-                <option>Arts</option>
-              </select>
-            </div>
           </div>
 
           {/* Loading and Error States */}

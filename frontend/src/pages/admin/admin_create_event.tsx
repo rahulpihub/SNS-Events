@@ -19,6 +19,7 @@ export default function AdminCreateEventPage() {
     endTime: "",
     cost: "",
     description: "",
+    eventType: "ONLINE",
   });
 
   const [errors, setErrors] = useState({
@@ -337,6 +338,27 @@ export default function AdminCreateEventPage() {
               {errors.venue && (
                 <p className="text-red-500 text-sm mt-2">{errors.venue}</p>
               )}
+            </div>
+
+            {/* Event Type Dropdown */}
+            <div>
+              <label
+                htmlFor="eventType"
+                className="block text-lg font-semibold text-black mb-3"
+              >
+                Event Type
+              </label>
+              <select
+                id="eventType"
+                value={formData.eventType}
+                onChange={(e) =>
+                  setFormData({ ...formData, eventType: e.target.value })
+                }
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
+              >
+                <option value="ONLINE">ONLINE EVENT - Attend Everywhere</option>
+                <option value="OFFLINE">OFFLINE EVENT</option>
+              </select>
             </div>
 
             {/* Start Date and End Date */}
