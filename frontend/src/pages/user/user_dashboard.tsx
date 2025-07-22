@@ -156,7 +156,7 @@ export default function UserDashboard() {
                     onClick={() => navigate("/signin")}
                     className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-md font-medium transition-colors"
                   >
-                    Login
+                    <span style={{ color: "#ffffffff" }}>Login</span>
                   </button>
                   <button
                     onClick={() => navigate("/signup")}
