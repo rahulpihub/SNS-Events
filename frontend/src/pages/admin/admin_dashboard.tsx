@@ -24,36 +24,35 @@ export default function UserDashboard() {
   ];
 
   // Fetch events from backend and extract unique venues
-useEffect(() => {
-  const fetchEvents = async () => {
-    try {
-      const authToken = sessionStorage.getItem("auth_token");
-      if (!authToken) {
-        setError("You are not authenticated.");
-        return;
-      }
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/admin/admin_events/",
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const authToken = sessionStorage.getItem("auth_token");
+        if (!authToken) {
+          setError("You are not authenticated.");
+          return;
         }
-      );
-      setEvents(response.data);
-      setFilteredEvents(response.data);
-      const venues = [...new Set(response.data.map((event) => event.venue))];
-      setUniqueVenues(venues);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load admin events");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchEvents();
-}, []);
-
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/admin/admin_events/",
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        setEvents(response.data);
+        setFilteredEvents(response.data);
+        const venues = [...new Set(response.data.map((event) => event.venue))];
+        setUniqueVenues(venues);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load admin events");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroImages.length);
@@ -163,6 +162,21 @@ useEffect(() => {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
+              {isAuthenticated && (
+                <button
+                  onClick={() => navigate("/admincreateevent")}
+                  className="text-white px-6 py-2 rounded-md font-medium transition-colors"
+                  style={{ backgroundColor: "#10B981" }} // Green color
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#059669")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#10B981")
+                  }
+                >
+                  + Create Event
+                </button>
+              )}
               {!isAuthenticated ? (
                 <>
                   <button

@@ -30,7 +30,7 @@ export default function AdminSignInPage() {
       sessionStorage.setItem("role", role);
 
       if (role === "Admin") {
-        navigate("/admincreateevent");
+        navigate("/admindashboard");
       } else {
         navigate("/userdashboard");
       }

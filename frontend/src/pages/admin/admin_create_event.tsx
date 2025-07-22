@@ -275,7 +275,14 @@ export default function AdminCreateEventPage() {
           </h2>
           <h1 className="text-4xl font-bold text-black">Create Event</h1>
         </div>
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-between mb-6">
+          <button
+            onClick={() => navigate("/admindashboard")}
+            type="button"
+            className="px-4 py-2 bg-gray-300 text-white rounded hover:bg-gray-400 transition-colors"
+          >
+            ← Back
+          </button>
           <button
             onClick={handleLogout}
             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
