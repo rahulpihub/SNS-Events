@@ -431,8 +431,11 @@ export default function UserDashboard() {
                         )}
                         , {event.start_time}
                       </p>
-                      <p className="text-gray-600 text-sm mb-4">
+                      <p className="text-gray-600 text-sm mb-1">
                         {event.venue}
+                      </p>
+                      <p className="text-gray-600 text-sm mb-4 font-bold">
+                        {event.event_type}
                       </p>
                       <button
                         className="w-full py-2 px-4 text-white rounded-md font-medium transition-colors"
@@ -460,7 +463,6 @@ export default function UserDashboard() {
               )}
             </div>
           )}
-
           {/* Load More Button */}
           {!loading && !error && filteredEvents.length > 0 && (
             <div className="text-center">
