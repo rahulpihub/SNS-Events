@@ -1,47 +1,52 @@
-# **SNS-Events**
+# 🎉 SNS-Events
 
-This is an event management platform with two types of users: **Admin** and **User**.
-The application is built with **React (frontend)**, **Django (backend)**, and **MongoDB (database)**.
-
----
-
-## **Features**
-
-### **1. Admin**
-
-* Admin accounts are **pre-created** (cannot be registered by new users).
-* Admins can **sign in** to the platform.
-* Admins have access to an **Admin Dashboard**, where they can:
-
-  * **Create new events**.
-  * **View all events created by themselves**.
-
-### **2. User**
-
-* Users can **register** with their personal details.
-* Users can **sign in** to the platform.
-* Users have access to a **User Dashboard**, where they can:
-
-  * **View all events** created by multiple admins.
-
+SNS-Events is an event management platform built with **React** (frontend), **Django** (backend), and **MongoDB** (database). It supports two types of users: **Admin** and **User**.
 
 ---
 
-## **Tech Stack**
+## 🚀 Features
 
-* **Frontend:** React (JSX), TailwindCSS
-* **Backend:** Python, Django REST Framework
-* **Database:** MongoDB
-* **API Calls:** Axios
-* **Authentication:** JWT (stored in session storage)
+### 👩‍💼 Admin
+
+- Admin accounts are **pre-created** (new users cannot register as admins).
+- Admins can **sign in** to the platform.
+- Admin Dashboard allows:
+  - ✅ Creating new events
+  - 📋 Viewing all events created by the admin
+
+### 🙋 User
+
+- Users can **register** using personal details.
+- Users can **sign in** to the platform.
+- User Dashboard provides:
+  - 🌐 Access to all events created by multiple admins
+
 ---
 
-## **How It Works**
+## 🛠 Tech Stack
 
-1. **Admins** manage the events (create, view).
-2. **Users** browse and read for events.
-3. Events created by multiple admins are **visible to all users**.
+| Layer        | Tech                     |
+|--------------|--------------------------|
+| Frontend     | React (JSX), TailwindCSS |
+| Backend      | Django REST Framework    |
+| Database     | MongoDB                  |
+| API Handling | Axios                    |
+| Auth         | JWT (stored in `sessionStorage`) |
 
+---
+
+## ⚙️ How It Works
+
+1. Admins create and manage events.
+2. Users view events created by any admin.
+3. All events are shared and visible to users across the platform.
+
+---
+
+## 📁 Folder Structure
+SNS-Events/
+├── frontend/ # React frontend (User/Admin Dashboard)
+├── backend/ # Django REST API backend
 ---
 
 ## **Getting Started**
@@ -75,9 +80,8 @@ python manage.py runserver
 
 ---
 
-## **Folder Structure**
+## **Architecture Link**
+📌 [Click here to view the full architecture diagram](https://drive.google.com/file/d/1E3PLprkMuBjPgmbgP2L1ozhXDR8_GU82/view?usp=sharing)
 
-* **frontend/** – React JSX code
-* **backend/** – Django backend APIs
-* **database/** – MongoDB collections
+
 
