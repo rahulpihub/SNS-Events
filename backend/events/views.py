@@ -249,3 +249,19 @@ def create_event(request):
         return JsonResponse({"message": "Event created successfully."})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def get_events(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    try:
+        events = list(events_collection.find())
+        # Convert ObjectId and datetime to string
+        for event in events:
+            event["_id"] = str(event["_id"])
+            if "created_at" in event:
+                event["created_at"] = event["created_at"].isoformat()
+        return JsonResponse(events, safe=False)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
