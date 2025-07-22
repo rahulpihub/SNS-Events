@@ -155,10 +155,18 @@ def ai_description(request):
         """
 
         result = model.generate_content(prompt)
-        return JsonResponse({"description": result.text.strip()})
+        description = result.text.strip()
+
+        # Remove markdown formatting (##, **)
+        description = re.sub(r"\*\*(.*?)\*\*", r"\1", description)  # Remove bold (**text**)
+        description = re.sub(r"##\s*", "", description)             # Remove headings starting with ##
+        description = re.sub(r"#\s*", "", description)              # Remove any single # if present
+
+        return JsonResponse({"description": description})
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
 
 
 @csrf_exempt
