@@ -117,7 +117,7 @@ export default function AdminSignInPage() {
         </div>
       </div>
 
-      <div className="flex-1 relative flex justify-center items-center">
+      <div className="flex-1 relative flex justify-end items-center">
         <div
           className="w-3/4 h-full bg-cover bg-center bg-no-repeat rounded-lg shadow-lg"
           style={{
