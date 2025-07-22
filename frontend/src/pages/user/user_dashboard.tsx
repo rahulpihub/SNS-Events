@@ -52,11 +52,17 @@ export default function UserDashboard() {
           cost: string | number;
           image_base64?: string;
         }
-        const venues = [...new Set((response.data as Event[]).map((event: Event) => event.venue))] as string[];
+        const venues = [
+          ...new Set(
+            (response.data as Event[]).map((event: Event) => event.venue)
+          ),
+        ] as string[];
         setUniqueVenues(venues);
         // Extract unique event types
         const eventTypes = [
-          ...new Set((response.data as Event[]).map((event: Event) => event.event_type)),
+          ...new Set(
+            (response.data as Event[]).map((event: Event) => event.event_type)
+          ),
         ];
         setUniqueEventTypes(eventTypes);
       } catch (err) {
@@ -88,7 +94,6 @@ export default function UserDashboard() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-
       const isWithinDateRange = (range: string): boolean => {
         const startOfWeek: Date = new Date(today);
         startOfWeek.setDate(today.getDate() - today.getDay());
@@ -105,19 +110,19 @@ export default function UserDashboard() {
 
         switch (range) {
           case "today":
-        return eventDate.toDateString() === today.toDateString();
+            return eventDate.toDateString() === today.toDateString();
           case "tomorrow":
-        const tomorrow: Date = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        return eventDate.toDateString() === tomorrow.toDateString();
+            const tomorrow: Date = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            return eventDate.toDateString() === tomorrow.toDateString();
           case "this-week":
-        return eventDate >= startOfWeek && eventDate <= endOfWeek;
+            return eventDate >= startOfWeek && eventDate <= endOfWeek;
           case "this-weekend":
-        return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
+            return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
           case "next-week":
-        return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
+            return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
           default:
-        return true;
+            return true;
         }
       };
 
@@ -137,7 +142,10 @@ export default function UserDashboard() {
     setFilteredEvents(filtered);
   };
 
-  const handleFilterChange = (filterType: "eventType" | "location" | "when", value: string) => {
+  const handleFilterChange = (
+    filterType: "eventType" | "location" | "when",
+    value: string
+  ) => {
     setSearchFilters((prev) => ({
       ...prev,
       [filterType]: value,
@@ -190,10 +198,12 @@ export default function UserDashboard() {
                     className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                     style={{ backgroundColor: "#8B5CF6" }}
                     onMouseEnter={(e) =>
-                      ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
+                      ((e.target as HTMLButtonElement).style.backgroundColor =
+                        "#7C3AED")
                     }
                     onMouseLeave={(e) =>
-                      ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
+                      ((e.target as HTMLButtonElement).style.backgroundColor =
+                        "#8B5CF6")
                     }
                   >
                     Signup
@@ -205,10 +215,12 @@ export default function UserDashboard() {
                   className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                   style={{ backgroundColor: "#8B5CF6" }}
                   onMouseEnter={(e) =>
-                    ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
+                    ((e.target as HTMLButtonElement).style.backgroundColor =
+                      "#7C3AED")
                   }
                   onMouseLeave={(e) =>
-                    ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
+                    ((e.target as HTMLButtonElement).style.backgroundColor =
+                      "#8B5CF6")
                   }
                 >
                   Logout
@@ -268,7 +280,7 @@ export default function UserDashboard() {
 
           {/* Overlay Text */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <h2 className="text-4xl mb-10 md:text-6xl font-bold text-white text-center">
+            <h2 className="text-4xl mb-55 md:text-5xl font-bold text-white text-center">
               MADE FOR THOSE
               <br />
               WHO DO
@@ -341,10 +353,12 @@ export default function UserDashboard() {
                   className="px-6 py-3 text-white rounded-md transition-colors hover:bg-opacity-90"
                   style={{ backgroundColor: "#8B5CF6" }}
                   onMouseEnter={(e) =>
-                    ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
+                    ((e.target as HTMLButtonElement).style.backgroundColor =
+                      "#7C3AED")
                   }
                   onMouseLeave={(e) =>
-                    ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
+                    ((e.target as HTMLButtonElement).style.backgroundColor =
+                      "#8B5CF6")
                   }
                 >
                   <svg
@@ -366,10 +380,12 @@ export default function UserDashboard() {
                   className="px-6 py-3 text-white rounded-md transition-colors hover:bg-opacity-90"
                   style={{ backgroundColor: "#6B7280" }}
                   onMouseEnter={(e) =>
-                    ((e.target as HTMLButtonElement).style.backgroundColor = "#4B5563")
+                    ((e.target as HTMLButtonElement).style.backgroundColor =
+                      "#4B5563")
                   }
                   onMouseLeave={(e) =>
-                    ((e.target as HTMLButtonElement).style.backgroundColor = "#6B7280")
+                    ((e.target as HTMLButtonElement).style.backgroundColor =
+                      "#6B7280")
                   }
                 >
                   Reset
@@ -463,11 +479,12 @@ export default function UserDashboard() {
                         className="w-full py-2 px-4 text-white rounded-md font-medium transition-colors"
                         style={{ backgroundColor: "#8B5CF6" }}
                         onMouseEnter={(e) =>
-                          ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
+                          (e.currentTarget.style.backgroundColor = "#7C3AED")
                         }
                         onMouseLeave={(e) =>
-                          ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
+                          (e.currentTarget.style.backgroundColor = "#8B5CF6")
                         }
+                        onClick={() => navigate(`/event/${event._id}`)} // Navigate to event detail page
                       >
                         {event.cost === "0" || event.cost === 0
                           ? "Book Now"
@@ -492,10 +509,12 @@ export default function UserDashboard() {
                 className="px-8 py-3 text-white rounded-md font-medium transition-colors"
                 style={{ backgroundColor: "#8B5CF6" }}
                 onMouseEnter={(e) =>
-                  ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
+                  ((e.target as HTMLButtonElement).style.backgroundColor =
+                    "#7C3AED")
                 }
                 onMouseLeave={(e) =>
-                  ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
+                  ((e.target as HTMLButtonElement).style.backgroundColor =
+                    "#8B5CF6")
                 }
               >
                 Load more...
@@ -525,10 +544,12 @@ export default function UserDashboard() {
                 className="px-6 py-2 text-white rounded-md font-medium transition-colors"
                 style={{ backgroundColor: "#8B5CF6" }}
                 onMouseEnter={(e) =>
-                  ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
+                  ((e.target as HTMLButtonElement).style.backgroundColor =
+                    "#7C3AED")
                 }
                 onMouseLeave={(e) =>
-                  ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
+                  ((e.target as HTMLButtonElement).style.backgroundColor =
+                    "#8B5CF6")
                 }
               >
                 Subscribe

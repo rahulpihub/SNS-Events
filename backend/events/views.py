@@ -4,6 +4,9 @@ from django.contrib.auth.hashers import check_password , make_password
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os, jwt, datetime, json , re , base64
+from bson import ObjectId
+from pymongo.errors import PyMongoError
+    
 
 # Load environment variables
 load_dotenv()
@@ -267,6 +270,32 @@ def get_events(request):
         return JsonResponse(events, safe=False)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+
+@csrf_exempt
+def get_event_by_id(request, id):
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    try:
+        # Validate ObjectId
+        if not ObjectId.is_valid(id):
+            return JsonResponse({"error": "Invalid event ID format."}, status=400)
+        
+        event = events_collection.find_one({"_id": ObjectId(id)})
+        if not event:
+            return JsonResponse({"error": "Event not found."}, status=404)
+        
+        # Convert ObjectId and datetime to string
+        event["_id"] = str(event["_id"])
+        if "created_at" in event:
+            event["created_at"] = event["created_at"].isoformat()
+        
+        return JsonResponse(event)
+    except PyMongoError as e:
+        return JsonResponse({"error": f"Database error: {str(e)}"}, status=500)
+    except Exception as e:
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
     
     
 @csrf_exempt
