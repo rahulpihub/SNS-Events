@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useEffect } from "react";
 
 export default function AdminCreateEventPage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -26,6 +27,18 @@ export default function AdminCreateEventPage() {
     image: "",
     date: "",
   });
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("auth_token"); // Remove auth token
+    navigate("/signin"); // Redirect to login page
+  };
+
+  useEffect(() => {
+    const authToken = sessionStorage.getItem("auth_token");
+    if (!authToken) {
+      navigate("/signin");
+    }
+  }, [navigate]);
 
   // Date and Time helper functions
   const formatDateForInput = (dateString: string) => {
@@ -123,9 +136,7 @@ export default function AdminCreateEventPage() {
   };
 
   /** ---------------- HANDLE INPUT CHANGE ---------------- */
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleInputChange = (e) => {
     const { id, value } = e.target;
     let field = id.replace("event", "").toLowerCase();
 
@@ -154,19 +165,6 @@ export default function AdminCreateEventPage() {
       }));
     } else if (id === "eventVenue") {
       setErrors((prev) => ({ ...prev, venue: "" }));
-    }
-
-    // Auto-set end date if start date is selected and end date is empty
-    if (id === "startDate" && value && !formData.endDate) {
-      setFormData((prev) => ({ ...prev, startDate: value, endDate: value }));
-    }
-
-    // Auto-set end time if start time is selected and end time is empty
-    if (id === "startTime" && value && !formData.endTime) {
-      const startTime = new Date(`2000-01-01T${value}`);
-      startTime.setHours(startTime.getHours() + 2); // Add 2 hours by default
-      const endTime = startTime.toTimeString().slice(0, 5);
-      setFormData((prev) => ({ ...prev, startTime: value, endTime: endTime }));
     }
   };
 
@@ -277,6 +275,14 @@ export default function AdminCreateEventPage() {
           </h2>
           <h1 className="text-4xl font-bold text-black">Create Event</h1>
         </div>
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
 
         {/* Form */}
         <form
@@ -343,7 +349,6 @@ export default function AdminCreateEventPage() {
                     onChange={handleInputChange}
                     min={getCurrentDate()}
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 cursor-pointer"
-                    style={{ colorScheme: "light" }}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -375,7 +380,6 @@ export default function AdminCreateEventPage() {
                     onChange={handleInputChange}
                     min={formData.startDate || getCurrentDate()}
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 cursor-pointer"
-                    style={{ colorScheme: "light" }}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -410,7 +414,6 @@ export default function AdminCreateEventPage() {
                     value={formData.startTime}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 cursor-pointer"
-                    style={{ colorScheme: "light" }}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -457,7 +460,6 @@ export default function AdminCreateEventPage() {
                         : undefined
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900 cursor-pointer"
-                    style={{ colorScheme: "light" }}
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
