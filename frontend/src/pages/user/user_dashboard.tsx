@@ -13,6 +13,8 @@ export default function UserDashboard() {
     when: "",
   });
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   const heroImages = [
     "/placeholder.svg?height=400&width=800&text=Event+Audience+1",
     "/placeholder.svg?height=400&width=800&text=Event+Audience+2",
@@ -59,6 +61,17 @@ export default function UserDashboard() {
     }));
   };
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("auth_token");
+    setIsAuthenticated(!!token); // true if token exists
+  }, []);
+
+  const handleLogout = () => {
+    sessionStorage.clear(); // Clear all session data
+    setIsAuthenticated(false);
+    navigate("/userdashboard"); // Redirect to homepage
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -68,29 +81,50 @@ export default function UserDashboard() {
             {/* Logo */}
             <div className="flex items-center">
               <h1 className="text-2xl font-bold">
-              <span style={{ color: "#000000ff" }}>Event</span>   <span style={{ color: "#8B5CF6" }}>Hive</span>
+                <span style={{ color: "#000000ff" }}>Event</span>{" "}
+                <span style={{ color: "#8B5CF6" }}>Hive</span>
               </h1>
             </div>
 
             {/* Navigation */}
             <div className="flex items-center space-x-4">
-              <button  onClick={() => navigate("/signin")}
-               className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-md font-medium transition-colors">
-                <span style={{ color: "#ffffffff" }}>Login</span>
-              </button>
-              <button
-                onClick={() => navigate("/")}
-                className="text-white px-6 py-2 rounded-md font-medium transition-colors"
-                style={{ backgroundColor: "#8B5CF6" }}
-                onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = "#7C3AED")
-                }
-                onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = "#8B5CF6")
-                }
-              >
-                Signup
-              </button>
+              {!isAuthenticated ? (
+                <>
+                  <button
+                    onClick={() => navigate("/signin")}
+                    className="text-gray-600 hover:text-gray-900 px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    <span style={{ color: "#ffffffff" }}>Login</span>
+                  </button>
+                  <button
+                    onClick={() => navigate("/signup")}
+                    className="text-white px-6 py-2 rounded-md font-medium transition-colors"
+                    style={{ backgroundColor: "#8B5CF6" }}
+                    onMouseEnter={(e) =>
+                      (e.target.style.backgroundColor = "#7C3AED")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.target.style.backgroundColor = "#8B5CF6")
+                    }
+                  >
+                    Signup
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleLogout}
+                  className="text-white px-6 py-2 rounded-md font-medium transition-colors"
+                  style={{ backgroundColor: "#8B5CF6" }}
+                  onMouseEnter={(e) =>
+                    (e.target.style.backgroundColor = "#7C3AED")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.target.style.backgroundColor = "#8B5CF6")
+                  }
+                >
+                  Logout
+                </button>
+              )}
             </div>
           </div>
         </div>
