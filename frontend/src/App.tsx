@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import TestBackend from './pages/TestBackend';
+import AdminSignInPage from './pages/admin/admin_signin';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/test" element={<TestBackend />} />
+        <Route path="/adminsignin" element={<AdminSignInPage />} />
       </Routes>
     </Router>
   );
