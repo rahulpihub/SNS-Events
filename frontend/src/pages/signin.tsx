@@ -1,15 +1,16 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import signInImage from "../assets/signin_img.png"; // Import the image
 
 export default function AdminSignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // For toggle visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -21,7 +22,7 @@ export default function AdminSignInPage() {
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/signin/", {
         email,
-        password
+        password,
       });
 
       const { token, role } = response.data;
@@ -33,7 +34,7 @@ export default function AdminSignInPage() {
       } else {
         navigate("/userdashboard");
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.error || "Something went wrong.");
     }
   };
@@ -41,21 +42,22 @@ export default function AdminSignInPage() {
   return (
     <div className="min-h-screen flex">
       <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md px-8">
+        <div className="w-full max-w-md  py-10 px-8">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-black">
-              Event <span style={{ color: '#8B5CF6' }}>Hive</span>
+              Event <span style={{ color: "#8B5CF6" }}>Hive</span>
             </h2>
           </div>
 
           <div className="text-center mb-12">
-            <h1 className="text-3xl font-bold text-black">Sign In to Event Hive</h1>
+            <h1 className="text-3xl font-bold text-black">
+              Sign In to Event Hive
+            </h1>
           </div>
 
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* Email Input */}
             <div>
               <label
                 htmlFor="email"
@@ -74,7 +76,6 @@ export default function AdminSignInPage() {
               />
             </div>
 
-            {/* Password Input with Show/Hide Toggle */}
             <div className="relative">
               <label
                 htmlFor="password"
@@ -84,32 +85,30 @@ export default function AdminSignInPage() {
               </label>
               <input
                 id="password"
-                type={showPassword ? "text" : "password"} // Toggle input type
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-gray-900 placeholder-gray-500"
               />
-              {/* Eye Icon */}
               <span
                 className="absolute top-9 right-3 cursor-pointer text-gray-500 hover:text-gray-700"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? "🙈" : "👁️"} {/* You can replace with an icon library */}
+                {showPassword ? "🙈" : "👁️"}
               </span>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full py-3 px-4 rounded-md text-white font-medium text-lg transition-colors duration-200"
-              style={{ backgroundColor: '#8B5CF6' }}
+              style={{ backgroundColor: "#8B5CF6" }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = '#7C3AED')
+                (e.currentTarget.style.backgroundColor = "#7C3AED")
               }
               onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = '#8B5CF6')
+                (e.currentTarget.style.backgroundColor = "#7C3AED")
               }
             >
               Sign In
@@ -118,15 +117,13 @@ export default function AdminSignInPage() {
         </div>
       </div>
 
-      <div className="flex-1 relative">
+      <div className="flex-1 relative flex justify-center items-center">
         <div
-          className="w-full h-full bg-cover bg-center bg-no-repeat"
+          className="w-3/4 h-full bg-cover bg-center bg-no-repeat rounded-lg shadow-lg"
           style={{
-            backgroundImage: `url('/admin_signin_img.png')`,
+            backgroundImage: `url(${signInImage})`,
           }}
-        >
-          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-        </div>
+        ></div>
       </div>
     </div>
   );

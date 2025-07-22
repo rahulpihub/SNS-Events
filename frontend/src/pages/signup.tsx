@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import signUpImage from "../assets/signup_img.png"; // Import the image
+
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -55,12 +57,9 @@ export default function SignUpPage() {
         <div
           className="w-full h-full bg-cover bg-center bg-no-repeat flex items-center justify-center"
           style={{
-            backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-98pP0e1lXWP1sEW1NEFsWrhjQPoFXi.png')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundImage: `url(${signUpImage})`,
           }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           <div className="relative z-10 text-center text-white px-8 max-w-md">
             <h2 className="text-4xl font-bold mb-6">Welcome back</h2>
             <p className="text-lg mb-8 leading-relaxed">
@@ -70,7 +69,7 @@ export default function SignUpPage() {
               className="px-8 py-3 bg-gray-600 bg-opacity-80 text-white rounded-md font-medium hover:bg-opacity-90 transition-all duration-200"
               onClick={() => navigate("/signin")}
             >
-              Signin
+              Sign in
             </button>
           </div>
         </div>
