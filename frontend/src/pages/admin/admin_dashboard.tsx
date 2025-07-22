@@ -24,23 +24,36 @@ export default function UserDashboard() {
   ];
 
   // Fetch events from backend and extract unique venues
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/events/");
-        setEvents(response.data);
-        setFilteredEvents(response.data);
-        const venues = [...new Set(response.data.map((event) => event.venue))];
-        setUniqueVenues(venues);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load events");
-      } finally {
-        setLoading(false);
+useEffect(() => {
+  const fetchEvents = async () => {
+    try {
+      const authToken = sessionStorage.getItem("auth_token");
+      if (!authToken) {
+        setError("You are not authenticated.");
+        return;
       }
-    };
-    fetchEvents();
-  }, []);
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/admin/admin_events/",
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+      setEvents(response.data);
+      setFilteredEvents(response.data);
+      const venues = [...new Set(response.data.map((event) => event.venue))];
+      setUniqueVenues(venues);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load admin events");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchEvents();
+}, []);
+
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroImages.length);
@@ -332,4 +345,4 @@ export default function UserDashboard() {
       </section>
     </div>
   );
-} 
+}

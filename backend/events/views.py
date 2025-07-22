@@ -265,3 +265,44 @@ def get_events(request):
         return JsonResponse(events, safe=False)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+    
+@csrf_exempt
+def admin_events(request):
+    if request.method != "GET":
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    try:
+        # Extract the Authorization header (Bearer token)
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({"error": "Authorization token missing."}, status=401)
+
+        token = auth_header.split(" ")[1]
+
+        # Decode JWT token (adjust algorithm and secret key as per your config)
+        try:
+            decoded_data = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"error": "Token has expired."}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({"error": "Invalid token."}, status=401)
+
+        # Extract email from decoded token
+        email = decoded_data.get("email")
+        if not email:
+            return JsonResponse({"error": "Email not found in token."}, status=400)
+
+        # Fetch events associated with this admin's email
+        admin_events = list(events_collection.find({"admin_email": email}))
+
+        # Convert ObjectId and datetime to string
+        for event in admin_events:
+            event["_id"] = str(event["_id"])
+            if "created_at" in event:
+                event["created_at"] = event["created_at"].isoformat()
+
+        return JsonResponse(admin_events, safe=False)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

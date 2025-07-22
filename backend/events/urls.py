@@ -7,4 +7,5 @@ urlpatterns = [
     path('admin/ai_description/', ai_description, name='ai_description'),
     path('admin/create_event/', create_event, name='create_event'),
     path('events/', get_events, name='get_events'),
+    path('admin/admin_events/',admin_events,name='admin_events')
 ]
