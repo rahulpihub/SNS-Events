@@ -356,8 +356,8 @@ export default function AdminCreateEventPage() {
                 }
                 className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-gray-900"
               >
-                <option value="ONLINE">ONLINE EVENT - Attend Everywhere</option>
-                <option value="OFFLINE">OFFLINE EVENT</option>
+                <option value="ONLINE EVENT - Attend Everywhere">ONLINE EVENT - Attend Everywhere</option>
+                <option value="OFFLINE EVENT">OFFLINE EVENT</option>
               </select>
             </div>
 
