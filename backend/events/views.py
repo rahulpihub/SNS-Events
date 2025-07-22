@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password , make_password
 from pymongo import MongoClient
 from dotenv import load_dotenv
-import os, jwt, datetime, json , re
+import os, jwt, datetime, json , re , base64
 
 # Load environment variables
 load_dotenv()
@@ -15,6 +15,7 @@ client = MongoClient(MONGO_URI)
 db = client[MONGO_DB]
 admins_collection = db["Admins"]
 users_collection = db["Users"]
+events_collection = db["Events"]
 
 @csrf_exempt
 def signin(request):
@@ -117,5 +118,126 @@ def user_signup(request):
         users_collection.insert_one(user)
 
         return JsonResponse({"message": "User registered successfully"}, status=201)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+def ai_description(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        title = data.get("title")
+        venue = data.get("venue")
+        start_time = data.get("start_time")
+        end_time = data.get("end_time")
+        start_date = data.get("start_date")
+        end_date = data.get("end_date")
+        cost = data.get("cost")
+
+        if not all([title, venue, start_time, end_time, start_date, end_date, cost]):
+            return JsonResponse({"error": "All event details are required."}, status=400)
+
+        # Setup Gemini API
+        import google.generativeai as genai
+        genai.configure(api_key="AIzaSyCESDpD47v4rUfcfddhceqAna52vTCnDGg")
+        model = genai.GenerativeModel("gemini-2.0-flash")
+
+        prompt = f"""
+        Create a professional and engaging event description using the following details:
+        - Title: {title}
+        - Venue: {venue}
+        - Start: {start_date} at {start_time}
+        - End: {end_date} at {end_time}
+        - Cost: INR {cost}
+        """
+
+        result = model.generate_content(prompt)
+        return JsonResponse({"description": result.text.strip()})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+@csrf_exempt
+def create_event(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    try:
+        # Extract JWT token from Authorization header
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({"error": "Authorization token is missing."}, status=401)
+
+        token = auth_header.split(" ")[1]
+        try:
+            decoded_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+            admin_email = decoded_token.get("email")
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"error": "Token expired."}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({"error": "Invalid token."}, status=401)
+
+        data = json.loads(request.body)
+
+        title = data.get("title", "").strip()
+        venue = data.get("venue", "").strip()
+        start_date = data.get("startDate")
+        end_date = data.get("endDate")
+        start_time = data.get("startTime")
+        end_time = data.get("endTime")
+        cost = data.get("cost")
+        description = data.get("description", "").strip()
+        image_base64 = data.get("image_base64", "")
+
+        # Validation: Required fields
+        if not title or len(title) > 50:
+            return JsonResponse({"error": "Title is required and max 50 chars."}, status=400)
+        if not venue or len(venue) > 150:
+            return JsonResponse({"error": "Venue is required and max 150 chars."}, status=400)
+        if not start_date or not end_date or not start_time or not end_time:
+            return JsonResponse({"error": "Start and end date/time are required."}, status=400)
+        if not image_base64:
+            return JsonResponse({"error": "Event image is required."}, status=400)
+
+        # Convert strings to date/time objects
+        try:
+            start_date_obj = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+            end_date_obj = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+            start_time_obj = datetime.datetime.strptime(start_time, "%H:%M").time()
+            end_time_obj = datetime.datetime.strptime(end_time, "%H:%M").time()
+        except ValueError:
+            return JsonResponse({"error": "Invalid date or time format."}, status=400)
+
+        # Logical date/time validation
+        if start_date_obj > end_date_obj or (start_date_obj == end_date_obj and start_time_obj >= end_time_obj):
+            return JsonResponse({"error": "Start date/time must be before end date/time."}, status=400)
+
+        # Validate base64 image
+        try:
+            base64.b64decode(image_base64)
+        except Exception:
+            return JsonResponse({"error": "Invalid image format."}, status=400)
+
+        # Save to Events collection
+        event_data = {
+            "title": title,
+            "venue": venue,
+            "start_date": start_date,
+            "end_date": end_date,
+            "start_time": start_time,
+            "end_time": end_time,
+            "cost": cost,
+            "description": description,
+            "image_base64": image_base64,
+            "admin_email": admin_email,
+            "created_at": datetime.datetime.utcnow()
+        }
+
+        events_collection.insert_one(event_data)
+        return JsonResponse({"message": "Event created successfully."})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
