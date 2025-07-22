@@ -39,7 +39,7 @@ The application is built with **React (frontend)**, **Django (backend)**, and **
 ## **How It Works**
 
 1. **Admins** manage the events (create, view).
-2. **Users** browse and register/book for events.
+2. **Users** browse and read for events.
 3. Events created by multiple admins are **visible to all users**.
 
 ---
