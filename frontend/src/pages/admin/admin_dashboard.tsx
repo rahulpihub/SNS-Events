@@ -220,8 +220,8 @@ export default function UserDashboard() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative">
-        <div className="relative h-96 overflow-hidden">
+      <section className="relative rounded:1g shadow-l0g">
+        <div className="relative h-100 px-10 py-5 pt-2 overflow-hidden ">
           <img
             src={heroImages[currentSlide] || admin_dashboard_img}
             alt="Event audience"
