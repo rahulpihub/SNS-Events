@@ -12,15 +12,20 @@ export default function AdminSignInPage() {
     e.preventDefault();
     setError("");
 
+    // Basic validation
+    if (!email.includes("@")) {
+      setError("Email is not valid.");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/admin/signup/", {
-        name: "Admin", // Static for now (can add input for name)
+      const response = await axios.post("http://127.0.0.1:8000/api/admin/signin/", {
         email,
         password
       });
 
       const token = response.data.token;
-      localStorage.setItem("admin_token", token);
+      sessionStorage.setItem("admin_token", token);
 
       // Redirect to Admin Create Event Page
       navigate("/admincreateevent");
@@ -31,7 +36,6 @@ export default function AdminSignInPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Column - Sign In Form */}
       <div className="flex-1 flex items-center justify-center bg-gray-50">
         <div className="w-full max-w-md px-8">
           <div className="text-center mb-8">
@@ -90,7 +94,6 @@ export default function AdminSignInPage() {
         </div>
       </div>
 
-      {/* Right Column - Background Image */}
       <div className="flex-1 relative">
         <div
           className="w-full h-full bg-cover bg-center bg-no-repeat"
