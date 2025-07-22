@@ -1,0 +1,42 @@
+# Environment and virtual environment
+.env
+.venv/
+
+# Python / Django
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg-info/
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# Environment Variables
+.env
+*.env
+
+# Node.js / React / Vite
+node_modules/
+dist/
+build/
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# Mac / Windows Files
+.DS_Store
+Thumbs.db
+
+# Other
+*.bak
+*.swp
