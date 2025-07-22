@@ -10,7 +10,13 @@ export default function AdminSignInPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  interface SignInResponse {
+    token: string;
+    role: string;
+  }
+
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError("");
 
@@ -20,7 +26,7 @@ export default function AdminSignInPage() {
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/signin/", {
+      const response = await axios.post<SignInResponse>("http://127.0.0.1:8000/api/signin/", {
         email,
         password,
       });
@@ -34,7 +40,7 @@ export default function AdminSignInPage() {
       } else {
         navigate("/userdashboard");
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.response?.data?.error || "Something went wrong.");
     }
   };

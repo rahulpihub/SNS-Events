@@ -3,18 +3,23 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import admin_dashboard_img from "../../assets/admin_img.png";
 
+// Define the Event type with at least the 'venue' property (add others as needed)
+interface Event {
+  _id: string;
+  title: string;
+  venue: string;
+  start_date: string;
+  start_time: string;
+  cost: string | number;
+  image_base64?: string;
+  // Add other properties if needed
+}
+
 export default function UserDashboard() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [events, setEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchFilters, setSearchFilters] = useState({
-    eventType: "",
-    location: "",
-    when: "",
-  });
-  const [uniqueVenues, setUniqueVenues] = useState([]);
+  const [error, setError] = useState<string | null>(null);
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const heroImages = [
@@ -22,6 +27,7 @@ export default function UserDashboard() {
     admin_dashboard_img,
     admin_dashboard_img,
   ];
+  const [currentSlide] = useState(0);
 
   // Fetch events from backend and extract unique venues
   useEffect(() => {
@@ -40,10 +46,7 @@ export default function UserDashboard() {
             },
           }
         );
-        setEvents(response.data);
         setFilteredEvents(response.data);
-        const venues = [...new Set(response.data.map((event) => event.venue))];
-        setUniqueVenues(venues);
       } catch (err) {
         console.error(err);
         setError("Failed to load admin events");
@@ -54,89 +57,13 @@ export default function UserDashboard() {
     fetchEvents();
   }, []);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide(
-      (prev) => (prev - 1 + heroImages.length) % heroImages.length
-    );
-  };
 
   const navigate = useNavigate();
 
-  const handleSearch = () => {
-    console.log("Search filters:", searchFilters);
-    const filtered = events.filter((event) => {
-      const eventDate = new Date(event.start_date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
 
-      const isWithinDateRange = (range) => {
-        const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - today.getDay());
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        const startOfNextWeek = new Date(endOfWeek);
-        startOfNextWeek.setDate(endOfWeek.getDate() + 1);
-        const endOfNextWeek = new Date(startOfNextWeek);
-        endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
-        const startOfWeekend = new Date(today);
-        startOfWeekend.setDate(today.getDate() + (6 - today.getDay()));
-        const endOfWeekend = new Date(startOfWeekend);
-        endOfWeekend.setDate(startOfWeekend.getDate() + 1);
 
-        switch (range) {
-          case "today":
-            return eventDate.toDateString() === today.toDateString();
-          case "tomorrow":
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            return eventDate.toDateString() === tomorrow.toDateString();
-          case "this-week":
-            return eventDate >= startOfWeek && eventDate <= endOfWeek;
-          case "this-weekend":
-            return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
-          case "next-week":
-            return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
-          default:
-            return true;
-        }
-      };
 
-      const matchesEventType = searchFilters.eventType
-        ? event.title
-            .toLowerCase()
-            .includes(searchFilters.eventType.toLowerCase())
-        : true;
-      const matchesLocation = searchFilters.location
-        ? event.venue.toLowerCase() === searchFilters.location.toLowerCase()
-        : true;
-      const matchesWhen = searchFilters.when
-        ? isWithinDateRange(searchFilters.when)
-        : true;
 
-      return matchesEventType && matchesLocation && matchesWhen;
-    });
-    setFilteredEvents(filtered);
-  };
-
-  const handleFilterChange = (filterType, value) => {
-    setSearchFilters((prev) => ({
-      ...prev,
-      [filterType]: value,
-    }));
-  };
-
-  const handleResetFilters = () => {
-    setSearchFilters({
-      eventType: "",
-      location: "",
-      when: "",
-    });
-    setFilteredEvents(events);
-  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("auth_token");
@@ -168,10 +95,10 @@ export default function UserDashboard() {
                   className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                   style={{ backgroundColor: "#10B981" }} // Green color
                   onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#059669")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#059669")
                   }
                   onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#10B981")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#10B981")
                   }
                 >
                   + Create Event
@@ -190,10 +117,10 @@ export default function UserDashboard() {
                     className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                     style={{ backgroundColor: "#8B5CF6" }}
                     onMouseEnter={(e) =>
-                      (e.target.style.backgroundColor = "#7C3AED")
+                      ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                     }
                     onMouseLeave={(e) =>
-                      (e.target.style.backgroundColor = "#8B5CF6")
+                      ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                     }
                   >
                     Signup
@@ -205,10 +132,10 @@ export default function UserDashboard() {
                   className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                   style={{ backgroundColor: "#8B5CF6" }}
                   onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#7C3AED")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                   }
                   onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#8B5CF6")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                   }
                 >
                   Logout
@@ -325,10 +252,10 @@ export default function UserDashboard() {
                 className="px-8 py-3 text-white rounded-md font-medium transition-colors"
                 style={{ backgroundColor: "#8B5CF6" }}
                 onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = "#7C3AED")
+                  ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                 }
                 onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = "#8B5CF6")
+                  ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                 }
               >
                 Load more...

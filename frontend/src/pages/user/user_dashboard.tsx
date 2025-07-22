@@ -4,19 +4,30 @@ import { useNavigate } from "react-router-dom";
 import user_dashboard_img from "../../assets/user_img.png";
 
 export default function UserDashboard() {
+  interface Event {
+    _id: string;
+    title: string;
+    start_date: string;
+    start_time: string;
+    venue: string;
+    event_type: string;
+    cost: string | number;
+    image_base64?: string;
+  }
+
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [events, setEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [searchFilters, setSearchFilters] = useState({
     eventType: "",
     location: "",
     when: "",
   });
-  const [uniqueVenues, setUniqueVenues] = useState([]);
+  const [uniqueVenues, setUniqueVenues] = useState<string[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [uniqueEventTypes, setUniqueEventTypes] = useState([]);
+  const [uniqueEventTypes, setUniqueEventTypes] = useState<string[]>([]);
 
   const heroImages = [
     user_dashboard_img,
@@ -31,11 +42,21 @@ export default function UserDashboard() {
         const response = await axios.get("http://127.0.0.1:8000/api/events/");
         setEvents(response.data);
         setFilteredEvents(response.data);
-        const venues = [...new Set(response.data.map((event) => event.venue))];
+        interface Event {
+          _id: string;
+          title: string;
+          start_date: string;
+          start_time: string;
+          venue: string;
+          event_type: string;
+          cost: string | number;
+          image_base64?: string;
+        }
+        const venues = [...new Set((response.data as Event[]).map((event: Event) => event.venue))] as string[];
         setUniqueVenues(venues);
         // Extract unique event types
         const eventTypes = [
-          ...new Set(response.data.map((event) => event.event_type)),
+          ...new Set((response.data as Event[]).map((event: Event) => event.event_type)),
         ];
         setUniqueEventTypes(eventTypes);
       } catch (err) {
@@ -67,35 +88,36 @@ export default function UserDashboard() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const isWithinDateRange = (range) => {
-        const startOfWeek = new Date(today);
+
+      const isWithinDateRange = (range: string): boolean => {
+        const startOfWeek: Date = new Date(today);
         startOfWeek.setDate(today.getDate() - today.getDay());
-        const endOfWeek = new Date(startOfWeek);
+        const endOfWeek: Date = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
-        const startOfNextWeek = new Date(endOfWeek);
+        const startOfNextWeek: Date = new Date(endOfWeek);
         startOfNextWeek.setDate(endOfWeek.getDate() + 1);
-        const endOfNextWeek = new Date(startOfNextWeek);
+        const endOfNextWeek: Date = new Date(startOfNextWeek);
         endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
-        const startOfWeekend = new Date(today);
+        const startOfWeekend: Date = new Date(today);
         startOfWeekend.setDate(today.getDate() + (6 - today.getDay()));
-        const endOfWeekend = new Date(startOfWeekend);
+        const endOfWeekend: Date = new Date(startOfWeekend);
         endOfWeekend.setDate(startOfWeekend.getDate() + 1);
 
         switch (range) {
           case "today":
-            return eventDate.toDateString() === today.toDateString();
+        return eventDate.toDateString() === today.toDateString();
           case "tomorrow":
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            return eventDate.toDateString() === tomorrow.toDateString();
+        const tomorrow: Date = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        return eventDate.toDateString() === tomorrow.toDateString();
           case "this-week":
-            return eventDate >= startOfWeek && eventDate <= endOfWeek;
+        return eventDate >= startOfWeek && eventDate <= endOfWeek;
           case "this-weekend":
-            return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
+        return eventDate >= startOfWeekend && eventDate <= endOfWeekend;
           case "next-week":
-            return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
+        return eventDate >= startOfNextWeek && eventDate <= endOfNextWeek;
           default:
-            return true;
+        return true;
         }
       };
 
@@ -115,7 +137,7 @@ export default function UserDashboard() {
     setFilteredEvents(filtered);
   };
 
-  const handleFilterChange = (filterType, value) => {
+  const handleFilterChange = (filterType: "eventType" | "location" | "when", value: string) => {
     setSearchFilters((prev) => ({
       ...prev,
       [filterType]: value,
@@ -168,10 +190,10 @@ export default function UserDashboard() {
                     className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                     style={{ backgroundColor: "#8B5CF6" }}
                     onMouseEnter={(e) =>
-                      (e.target.style.backgroundColor = "#7C3AED")
+                      ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                     }
                     onMouseLeave={(e) =>
-                      (e.target.style.backgroundColor = "#8B5CF6")
+                      ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                     }
                   >
                     Signup
@@ -183,10 +205,10 @@ export default function UserDashboard() {
                   className="text-white px-6 py-2 rounded-md font-medium transition-colors"
                   style={{ backgroundColor: "#8B5CF6" }}
                   onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#7C3AED")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                   }
                   onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#8B5CF6")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                   }
                 >
                   Logout
@@ -319,10 +341,10 @@ export default function UserDashboard() {
                   className="px-6 py-3 text-white rounded-md transition-colors hover:bg-opacity-90"
                   style={{ backgroundColor: "#8B5CF6" }}
                   onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#7C3AED")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                   }
                   onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#8B5CF6")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                   }
                 >
                   <svg
@@ -344,10 +366,10 @@ export default function UserDashboard() {
                   className="px-6 py-3 text-white rounded-md transition-colors hover:bg-opacity-90"
                   style={{ backgroundColor: "#6B7280" }}
                   onMouseEnter={(e) =>
-                    (e.target.style.backgroundColor = "#4B5563")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#4B5563")
                   }
                   onMouseLeave={(e) =>
-                    (e.target.style.backgroundColor = "#6B7280")
+                    ((e.target as HTMLButtonElement).style.backgroundColor = "#6B7280")
                   }
                 >
                   Reset
@@ -441,10 +463,10 @@ export default function UserDashboard() {
                         className="w-full py-2 px-4 text-white rounded-md font-medium transition-colors"
                         style={{ backgroundColor: "#8B5CF6" }}
                         onMouseEnter={(e) =>
-                          (e.target.style.backgroundColor = "#7C3AED")
+                          ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                         }
                         onMouseLeave={(e) =>
-                          (e.target.style.backgroundColor = "#8B5CF6")
+                          ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                         }
                       >
                         {event.cost === "0" || event.cost === 0
@@ -470,10 +492,10 @@ export default function UserDashboard() {
                 className="px-8 py-3 text-white rounded-md font-medium transition-colors"
                 style={{ backgroundColor: "#8B5CF6" }}
                 onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = "#7C3AED")
+                  ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                 }
                 onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = "#8B5CF6")
+                  ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                 }
               >
                 Load more...
@@ -503,10 +525,10 @@ export default function UserDashboard() {
                 className="px-6 py-2 text-white rounded-md font-medium transition-colors"
                 style={{ backgroundColor: "#8B5CF6" }}
                 onMouseEnter={(e) =>
-                  (e.target.style.backgroundColor = "#7C3AED")
+                  ((e.target as HTMLButtonElement).style.backgroundColor = "#7C3AED")
                 }
                 onMouseLeave={(e) =>
-                  (e.target.style.backgroundColor = "#8B5CF6")
+                  ((e.target as HTMLButtonElement).style.backgroundColor = "#8B5CF6")
                 }
               >
                 Subscribe

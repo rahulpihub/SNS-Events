@@ -42,29 +42,11 @@ export default function AdminCreateEventPage() {
   }, [navigate]);
 
   // Date and Time helper functions
-  const formatDateForInput = (dateString: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0];
-  };
-
-  const formatTimeForInput = (timeString: string) => {
-    if (!timeString) return "";
-    return timeString;
-  };
-
   const getCurrentDate = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
   };
-
-  const getCurrentTime = () => {
-    const now = new Date();
-    const hours = now.getHours().toString().padStart(2, "0");
-    const minutes = now.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
-  };
-
+  
   /** ---------------- IMAGE BASE64 UTILITY ---------------- */
   const getBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -137,7 +119,7 @@ export default function AdminCreateEventPage() {
   };
 
   /** ---------------- HANDLE INPUT CHANGE ---------------- */
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     let field = id.replace("event", "").toLowerCase();
 
