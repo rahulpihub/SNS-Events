@@ -45,9 +45,11 @@ SNS-Events is an event management platform built with **React** (frontend), **Dj
 
 ## 📁 Folder Structure
 SNS-Events/
-├── frontend/ # React frontend (User/Admin Dashboard)
-├── backend/ # Django REST API backend
----
+│
+├── frontend/       # React JSX components and UI
+├── backend/        # Django REST APIs and settings
+└── database/       # MongoDB collections
+
 
 ## **Getting Started**
 
