@@ -16,6 +16,7 @@ export default function UserDashboard() {
   });
   const [uniqueVenues, setUniqueVenues] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [uniqueEventTypes, setUniqueEventTypes] = useState([]);
 
   const heroImages = [
     user_dashboard_img,
@@ -32,6 +33,11 @@ export default function UserDashboard() {
         setFilteredEvents(response.data);
         const venues = [...new Set(response.data.map((event) => event.venue))];
         setUniqueVenues(venues);
+        // Extract unique event types
+        const eventTypes = [
+          ...new Set(response.data.map((event) => event.event_type)),
+        ];
+        setUniqueEventTypes(eventTypes);
       } catch (err) {
         console.error(err);
         setError("Failed to load events");
@@ -94,9 +100,8 @@ export default function UserDashboard() {
       };
 
       const matchesEventType = searchFilters.eventType
-        ? event.title
-            .toLowerCase()
-            .includes(searchFilters.eventType.toLowerCase())
+        ? event.event_type.toLowerCase() ===
+          searchFilters.eventType.toLowerCase()
         : true;
       const matchesLocation = searchFilters.location
         ? event.venue.toLowerCase() === searchFilters.location.toLowerCase()
@@ -200,7 +205,7 @@ export default function UserDashboard() {
             alt="Event audience"
             className="w-full h-full object-cover"
           />
-          
+
           {/* Navigation Arrows */}
           <button
             onClick={prevSlide}
@@ -238,7 +243,7 @@ export default function UserDashboard() {
               />
             </svg>
           </button>
-          
+
           {/* Overlay Text */}
           <div className="absolute inset-0 flex items-center justify-center">
             <h2 className="text-4xl mb-10 md:text-6xl font-bold text-white text-center">
@@ -265,11 +270,11 @@ export default function UserDashboard() {
                   }
                 >
                   <option value="">Choose event type</option>
-                  <option value="conference">Conference</option>
-                  <option value="workshop">Workshop</option>
-                  <option value="concert">Concert</option>
-                  <option value="seminar">Seminar</option>
-                  <option value="networking">Networking</option>
+                  {uniqueEventTypes.map((eventType) => (
+                    <option key={eventType} value={eventType.toLowerCase()}>
+                      {eventType}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="flex-1">
@@ -496,7 +501,10 @@ export default function UserDashboard() {
       </section>
 
       {/* Footer - Updated to match the dark blue color from image */}
-      <footer style={{ backgroundColor: "#10107B" }} className="text-white py-12">
+      <footer
+        style={{ backgroundColor: "#10107B" }}
+        className="text-white py-12"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8">
             <h2 className="text-2xl font-bold mb-4 md:mb-0">
@@ -590,4 +598,4 @@ export default function UserDashboard() {
       </footer>
     </div>
   );
-} 
+}
